@@ -24,100 +24,145 @@
     .title {
       font-size: 11px;
       letter-spacing: 0.25em;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.3);
       text-transform: uppercase;
-      margin-bottom: 48px;
+      margin-bottom: 40px;
       text-align: center;
     }
 
     .prompt {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 300;
       text-align: center;
-      line-height: 1.5;
-      margin-bottom: 40px;
+      line-height: 1.6;
+      margin-bottom: 32px;
       color: rgba(255,255,255,0.85);
     }
 
+    /* 카테고리 선택 */
+    .category-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 340px;
+      margin-bottom: 20px;
+    }
+
+    .cat-btn {
+      padding: 14px 10px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.5);
+      font-size: 15px;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-btn .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .cat-btn.selected {
+      border-color: var(--cat-color);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      box-shadow: 0 0 16px -4px var(--cat-color);
+    }
+
+    /* 키워드 입력 */
     .input-wrap {
       width: 100%;
       max-width: 340px;
-      position: relative;
+      margin-bottom: 12px;
     }
 
     input[type="text"] {
       width: 100%;
       background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 12px;
       padding: 18px 20px;
       font-size: 18px;
       font-family: 'Noto Sans KR', sans-serif;
       color: #fff;
       outline: none;
-      transition: border-color 0.3s, background 0.3s;
+      transition: border-color 0.3s;
       text-align: center;
-      letter-spacing: 0.05em;
     }
 
-    input[type="text"]::placeholder {
-      color: rgba(255,255,255,0.2);
-    }
+    input[type="text"]::placeholder { color: rgba(255,255,255,0.2); }
+    input[type="text"]:focus { border-color: rgba(255,255,255,0.35); }
 
-    input[type="text"]:focus {
-      border-color: rgba(150, 100, 255, 0.6);
-      background: rgba(150, 100, 255, 0.05);
-    }
-
-    button {
-      margin-top: 16px;
+    button#sendBtn {
       width: 100%;
       max-width: 340px;
       padding: 18px;
-      background: rgba(150, 100, 255, 0.8);
-      border: none;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
       border-radius: 12px;
-      color: #fff;
+      color: rgba(255,255,255,0.5);
       font-size: 16px;
       font-family: 'Noto Sans KR', sans-serif;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: all 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
 
-    button:active {
-      background: rgba(150, 100, 255, 1);
-      transform: scale(0.98);
+    button#sendBtn.ready {
+      background: var(--selected-color, rgba(150,100,255,0.8));
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 20px -4px var(--selected-color, rgba(150,100,255,0.5));
     }
 
-    button:disabled {
-      background: rgba(255,255,255,0.1);
-      cursor: not-allowed;
-    }
+    button#sendBtn:active { transform: scale(0.98); }
+    button#sendBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     .feedback {
-      margin-top: 24px;
+      margin-top: 20px;
       font-size: 13px;
-      color: rgba(150, 100, 255, 0.9);
+      color: rgba(255,255,255,0.5);
       text-align: center;
       min-height: 20px;
       letter-spacing: 0.05em;
-      transition: opacity 0.3s;
     }
 
     .sent-list {
-      margin-top: 40px;
+      margin-top: 36px;
       width: 100%;
       max-width: 340px;
+      display: none;
     }
 
     .sent-title {
       font-size: 10px;
       letter-spacing: 0.2em;
       color: rgba(255,255,255,0.2);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       text-transform: uppercase;
     }
 
@@ -128,12 +173,10 @@
     }
 
     .tag {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 20px;
       padding: 5px 14px;
       font-size: 13px;
-      color: rgba(255,255,255,0.5);
+      border: 1px solid;
       animation: tagIn 0.4s ease;
     }
 
@@ -141,42 +184,47 @@
       from { opacity: 0; transform: scale(0.8); }
       to   { opacity: 1; transform: scale(1); }
     }
-
-    .dot {
-      display: inline-block;
-      width: 6px; height: 6px;
-      background: rgba(150,100,255,0.8);
-      border-radius: 50%;
-      margin-right: 8px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
   </style>
 </head>
 <body>
 
-  <div class="title"><span class="dot"></span>Beyond the Center Node</div>
-
+  <div class="title">Beyond the Center Node</div>
   <div class="prompt">지금 떠오르는<br>단어를 입력하세요</div>
 
-  <div class="input-wrap">
-    <input type="text" id="keyword" placeholder="키워드" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false">
+  <div class="category-label">카테고리 선택</div>
+  <div class="categories">
+    <button class="cat-btn" data-cat="일상" style="--cat-color: rgb(120,245,185)">
+      <span class="dot" style="background: rgb(120,245,185)"></span>
+      일상
+    </button>
+    <button class="cat-btn" data-cat="공부" style="--cat-color: rgb(110,165,255)">
+      <span class="dot" style="background: rgb(110,165,255)"></span>
+      공부
+    </button>
+    <button class="cat-btn" data-cat="일" style="--cat-color: rgb(255,185,90)">
+      <span class="dot" style="background: rgb(255,185,90)"></span>
+      일
+    </button>
+    <button class="cat-btn" data-cat="감정" style="--cat-color: rgb(255,105,150)">
+      <span class="dot" style="background: rgb(255,105,150)"></span>
+      감정
+    </button>
   </div>
 
-  <button id="sendBtn" onclick="sendKeyword()">전시에 띄우기</button>
+  <div class="input-wrap">
+    <input type="text" id="keyword" placeholder="키워드" maxlength="20"
+           autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+
+  <button id="sendBtn" onclick="sendKeyword()" disabled>전시에 띄우기</button>
 
   <div class="feedback" id="feedback"></div>
 
-  <div class="sent-list" id="sentList" style="display:none">
+  <div class="sent-list" id="sentList">
     <div class="sent-title">내가 보낸 키워드</div>
     <div class="sent-tags" id="tags"></div>
   </div>
 
-<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -194,10 +242,48 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  const catColors = {
+    '일상': 'rgb(120,245,185)',
+    '공부': 'rgb(110,165,255)',
+    '일':   'rgb(255,185,90)',
+    '감정': 'rgb(255,105,150)',
+  };
+
+  let selectedCategory = null;
+
+  // 카테고리 버튼
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCategory = btn.dataset.cat;
+      updateSendBtn();
+    });
+  });
+
+  // 입력창 변화 감지
+  document.getElementById('keyword').addEventListener('input', updateSendBtn);
+  document.getElementById('keyword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendKeyword();
+  });
+
+  function updateSendBtn() {
+    const word = document.getElementById('keyword').value.trim();
+    const btn = document.getElementById('sendBtn');
+    if (word && selectedCategory) {
+      btn.disabled = false;
+      btn.classList.add('ready');
+      btn.style.setProperty('--selected-color', catColors[selectedCategory]);
+    } else {
+      btn.disabled = true;
+      btn.classList.remove('ready');
+    }
+  }
+
   window.sendKeyword = async function() {
     const input = document.getElementById('keyword');
     const word = input.value.trim();
-    if (!word) return;
+    if (!word || !selectedCategory) return;
 
     const btn = document.getElementById('sendBtn');
     const feedback = document.getElementById('feedback');
@@ -208,33 +294,33 @@
     try {
       await push(ref(db, 'keywords'), {
         text: word,
+        category: selectedCategory,
         time: Date.now()
       });
 
       feedback.textContent = '✓ 전시 화면에 나타났어요!';
       input.value = '';
+      updateSendBtn();
 
-      // 보낸 태그 목록
+      // 보낸 태그
       const sentList = document.getElementById('sentList');
       const tags = document.getElementById('tags');
       sentList.style.display = 'block';
       const tag = document.createElement('div');
       tag.className = 'tag';
       tag.textContent = word;
+      const color = catColors[selectedCategory];
+      tag.style.color = color;
+      tag.style.borderColor = color.replace('rgb', 'rgba').replace(')', ', 0.4)');
+      tag.style.background = color.replace('rgb', 'rgba').replace(')', ', 0.08)');
       tags.appendChild(tag);
 
       setTimeout(() => { feedback.textContent = ''; }, 3000);
     } catch (e) {
       feedback.textContent = '오류가 발생했어요. 다시 시도해주세요.';
+      btn.disabled = false;
     }
-
-    btn.disabled = false;
   };
-
-  // 엔터키 지원
-  document.getElementById('keyword').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') window.sendKeyword();
-  });
 </script>
 </body>
 </html>
