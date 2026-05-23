@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Beyond the Center Node</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #03050a; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDUzNgom4q3EdWVKhmTVse5qnloDAmjUiQ",
+    authDomain: "beyond-the-center-node.firebaseapp.com",
+    databaseURL: "https://beyond-the-center-node-default-rtdb.firebaseio.com",
+    projectId: "beyond-the-center-node",
+    storageBucket: "beyond-the-center-node.firebasestorage.app",
+    messagingSenderId: "968268209370",
+    appId: "1:968268209370:web:67c6785e85b1e4a52f59e3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  onChildAdded(ref(db, 'keywords'), (snapshot) => {
+    const word = snapshot.val().text;
+    if (window.addLiveNode) {
+      window.addLiveNode(word);
+    }
+  });
+</script>
+
+<!-- p5.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+
+<script>
+let nodes = [];
+let links = [];
+
+// 색상 팔레트 (입력 순서대로 순환)
+const colors = [
+  [255, 105, 150],
+  [255, 185, 90],
+  [110, 165, 255],
+  [120, 245, 185],
+  [180, 135, 255],
+  [255, 220, 100],
+  [100, 220, 255],
+];
+let colorIndex = 0;
+
+function setup() {
+  createCanvas(4512, 903);
+  textAlign(CENTER, CENTER);
+  textFont("sans-serif");
+  textSize(17);
+
+  // Firebase에서 실시간 키워드 받는 함수 등록
+  window.addLiveNode = function(word) {
+    let c = colors[colorIndex % colors.length];
+    colorIndex++;
+
+    let x, y;
+
+    if (nodes.length === 0) {
+      // 첫 노드: 캔버스 중앙 근처 랜덤
+      x = random(width * 0.2, width * 0.8);
+      y = random(height * 0.2, height * 0.8);
+    } else {
+      // 부모 노드: 가장 최근 노드 or 랜덤 노드
+      let parent = random() < 0.6
+        ? nodes[nodes.length - 1]
+        : random(nodes);
+
+      let angle = random(TWO_PI);
+      let distance = random(150, 360);
+      x = constrain(parent.baseX + cos(angle) * distance, 120, width - 120);
+      y = constrain(parent.baseY + sin(angle) * distance, 100, height - 100);
+    }
+
+    let newNode = new Node(x, y, word, c);
+    nodes.push(newNode);
+
+    // 부모 연결
+    if (nodes.length > 1) {
+      let parent = random() < 0.6
+        ? nodes[nodes.length - 2]
+        : random(nodes.slice(0, -1));
+      links.push(new Link(parent, newNode, true));
+    }
+
+    // 주변 노드와 추가 연결
+    for (let other of nodes) {
+      if (other !== newNode) {
+        let d = dist(newNode.baseX, newNode.baseY, other.baseX, other.baseY);
+        if (d < 400 && random() < 0.2) {
+          links.push(new Link(newNode, other, false));
+        }
+      }
+    }
+  };
+}
+
+function draw() {
+  background(3, 5, 10, 32);
+
+  for (let link of links) {
+    link.update();
+    link.display();
+  }
+
+  for (let node of nodes) {
+    node.update();
+    node.display();
+  }
+
+  // 노드 없을 때 안내
+  if (nodes.length === 0) {
+    fill(255, 255, 255, 40);
+    noStroke();
+    textSize(22);
+    textAlign(CENTER, CENTER);
+    text('QR 코드를 스캔하고 키워드를 입력해주세요', width / 2, height / 2);
+  }
+}
+
+class Link {
+  constructor(a, b, isPrimary) {
+    this.a = a;
+    this.b = b;
+    this.alpha = 0;
+    this.isPrimary = isPrimary; // 주 연결 vs 보조 연결
+  }
+
+  update() {
+    this.alpha = min(this.alpha + 3, 130);
+  }
+
+  display() {
+    if (this.isPrimary) {
+      stroke(210, 230, 255, this.alpha);
+      strokeWeight(1.2);
+    } else {
+      stroke(255, 255, 255, this.alpha * 0.25);
+      strokeWeight(0.6);
+    }
+    line(this.a.x, this.a.y, this.b.x, this.b.y);
+  }
+}
+
+class Node {
+  constructor(x, y, label, c) {
+    this.baseX = x;
+    this.baseY = y;
+    this.x = x;
+    this.y = y;
+    this.label = label;
+    this.c = c;
+    this.size = random(8, 16);
+    this.alpha = 0;
+    this.offset = random(1000);
+    this.pulseSpeed = random(0.015, 0.035);
+    this.weight = 1.0;
+  }
+
+  update() {
+    this.alpha = min(this.alpha + 5, 255);
+    this.x = this.baseX + sin(frameCount * 0.008 + this.offset) * 9;
+    this.y = this.baseY + cos(frameCount * 0.01 + this.offset) * 9;
+  }
+
+  display() {
+    let c = this.c;
+    let pulse = sin(frameCount * this.pulseSpeed + this.offset) * 0.5 + 0.5;
+
+    noStroke();
+
+    // 바깥 glow
+    fill(c[0], c[1], c[2], this.alpha * 0.08);
+    ellipse(this.x, this.y, this.size * 5.5 + pulse * 6);
+
+    // 중간 glow
+    fill(c[0], c[1], c[2], this.alpha * 0.18);
+    ellipse(this.x, this.y, this.size * 3.2 + pulse * 4);
+
+    // 중심 원
+    fill(c[0], c[1], c[2], this.alpha);
+    ellipse(this.x, this.y, this.size);
+
+    // 텍스트
+    fill(245, 248, 255, this.alpha * 0.92);
+    textSize(15);
+    textAlign(CENTER, CENTER);
+    text(this.label, this.x, this.y + this.size + 16);
+  }
+}
+</script>
+</body>
+</html>
