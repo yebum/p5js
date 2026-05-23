@@ -30,9 +30,9 @@
   const db = getDatabase(app);
 
   onChildAdded(ref(db, 'keywords'), (snapshot) => {
-    const word = snapshot.val().text;
+    const data = snapshot.val();
     if (window.addLiveNode) {
-      window.addLiveNode(word);
+      window.addLiveNode(data.text, data.category);
     }
   });
 </script>
@@ -44,41 +44,31 @@
 let nodes = [];
 let links = [];
 
-// 색상 팔레트 (입력 순서대로 순환)
-const colors = [
-  [255, 105, 150],
-  [255, 185, 90],
-  [110, 165, 255],
-  [120, 245, 185],
-  [180, 135, 255],
-  [255, 220, 100],
-  [100, 220, 255],
-];
-let colorIndex = 0;
+// 카테고리별 색상
+const categoryColors = {
+  '일상': [120, 245, 185],
+  '공부': [110, 165, 255],
+  '일':   [255, 185, 90],
+  '감정': [255, 105, 150],
+};
+const defaultColor = [180, 135, 255];
 
 function setup() {
-  createCanvas(4512, 903);
+  createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
   textFont("sans-serif");
-  textSize(17);
 
-  // Firebase에서 실시간 키워드 받는 함수 등록
-  window.addLiveNode = function(word) {
-    let c = colors[colorIndex % colors.length];
-    colorIndex++;
+  window.addLiveNode = function(word, category) {
+    let c = categoryColors[category] || defaultColor;
 
     let x, y;
-
     if (nodes.length === 0) {
-      // 첫 노드: 캔버스 중앙 근처 랜덤
       x = random(width * 0.2, width * 0.8);
       y = random(height * 0.2, height * 0.8);
     } else {
-      // 부모 노드: 가장 최근 노드 or 랜덤 노드
       let parent = random() < 0.6
         ? nodes[nodes.length - 1]
         : random(nodes);
-
       let angle = random(TWO_PI);
       let distance = random(150, 360);
       x = constrain(parent.baseX + cos(angle) * distance, 120, width - 120);
@@ -88,7 +78,6 @@ function setup() {
     let newNode = new Node(x, y, word, c);
     nodes.push(newNode);
 
-    // 부모 연결
     if (nodes.length > 1) {
       let parent = random() < 0.6
         ? nodes[nodes.length - 2]
@@ -96,7 +85,6 @@ function setup() {
       links.push(new Link(parent, newNode, true));
     }
 
-    // 주변 노드와 추가 연결
     for (let other of nodes) {
       if (other !== newNode) {
         let d = dist(newNode.baseX, newNode.baseY, other.baseX, other.baseY);
@@ -121,11 +109,10 @@ function draw() {
     node.display();
   }
 
-  // 노드 없을 때 안내
   if (nodes.length === 0) {
     fill(255, 255, 255, 40);
     noStroke();
-    textSize(22);
+    textSize(18);
     textAlign(CENTER, CENTER);
     text('QR 코드를 스캔하고 키워드를 입력해주세요', width / 2, height / 2);
   }
@@ -136,13 +123,9 @@ class Link {
     this.a = a;
     this.b = b;
     this.alpha = 0;
-    this.isPrimary = isPrimary; // 주 연결 vs 보조 연결
+    this.isPrimary = isPrimary;
   }
-
-  update() {
-    this.alpha = min(this.alpha + 3, 130);
-  }
-
+  update() { this.alpha = min(this.alpha + 3, 130); }
   display() {
     if (this.isPrimary) {
       stroke(210, 230, 255, this.alpha);
@@ -167,39 +150,31 @@ class Node {
     this.alpha = 0;
     this.offset = random(1000);
     this.pulseSpeed = random(0.015, 0.035);
-    this.weight = 1.0;
   }
-
   update() {
     this.alpha = min(this.alpha + 5, 255);
     this.x = this.baseX + sin(frameCount * 0.008 + this.offset) * 9;
     this.y = this.baseY + cos(frameCount * 0.01 + this.offset) * 9;
   }
-
   display() {
     let c = this.c;
     let pulse = sin(frameCount * this.pulseSpeed + this.offset) * 0.5 + 0.5;
-
     noStroke();
-
-    // 바깥 glow
     fill(c[0], c[1], c[2], this.alpha * 0.08);
     ellipse(this.x, this.y, this.size * 5.5 + pulse * 6);
-
-    // 중간 glow
     fill(c[0], c[1], c[2], this.alpha * 0.18);
     ellipse(this.x, this.y, this.size * 3.2 + pulse * 4);
-
-    // 중심 원
     fill(c[0], c[1], c[2], this.alpha);
     ellipse(this.x, this.y, this.size);
-
-    // 텍스트
     fill(245, 248, 255, this.alpha * 0.92);
     textSize(15);
     textAlign(CENTER, CENTER);
     text(this.label, this.x, this.y + this.size + 16);
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 </script>
 </body>
