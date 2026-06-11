@@ -2,14 +2,178 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Beyond the Center Node</title>
+  <title>Second Brain</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #03050a; overflow: hidden; }
+    body { background: #03050a; overflow: hidden; font-family: 'Noto Sans KR', sans-serif; }
     canvas { display: block; }
+
+    /* ── 인트로 오버레이 ── */
+    #startOverlay {
+      position: fixed;
+      inset: 0;
+      background: #03050a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 0.9s ease;
+    }
+    #startOverlay.hidden { opacity: 0; pointer-events: none; }
+
+    .intro-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      max-width: 540px;
+      text-align: center;
+    }
+
+    /* 스캔라인 애니메이션 SVG */
+    .brain-svg {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.2s forwards;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      color: rgba(110, 140, 255, 0.55);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.5s forwards;
+    }
+
+    .title {
+      font-size: 42px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: rgba(220, 228, 255, 0.92);
+      line-height: 1;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.7s forwards;
+    }
+
+    .divider {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, transparent, rgba(110,140,255,0.4), transparent);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.9s forwards;
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 2.0;
+      color: rgba(180, 195, 230, 0.65);
+      letter-spacing: 0.04em;
+      word-break: keep-all;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 1s ease 1.1s forwards;
+    }
+    .description em {
+      font-style: normal;
+      color: rgba(200, 215, 255, 0.88);
+    }
+
+    .cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeUp 1s ease 1.5s forwards;
+    }
+    .cta-label {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: rgba(110, 140, 255, 0.5);
+      text-transform: uppercase;
+    }
+    .cta-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(110, 140, 255, 0.6);
+      animation: blink 1.6s ease-in-out infinite;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 0.3; }
+      50%       { opacity: 1; }
+    }
   </style>
 </head>
 <body>
+
+<!-- 인트로 오버레이 -->
+<div id="startOverlay">
+  <div class="intro-inner">
+
+    <!-- 뇌 아이콘 (신경망 느낌 SVG) -->
+    <svg class="brain-svg" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="36" cy="36" r="35" stroke="rgba(110,140,255,0.18)" stroke-width="0.8"/>
+      <circle cx="36" cy="36" r="26" stroke="rgba(110,140,255,0.12)" stroke-width="0.6"/>
+      <!-- 노드 점들 -->
+      <circle cx="36" cy="14" r="2" fill="rgba(140,170,255,0.7)"/>
+      <circle cx="55" cy="25" r="1.5" fill="rgba(140,170,255,0.5)"/>
+      <circle cx="58" cy="44" r="2" fill="rgba(140,170,255,0.7)"/>
+      <circle cx="44" cy="60" r="1.5" fill="rgba(140,170,255,0.5)"/>
+      <circle cx="24" cy="60" r="2" fill="rgba(140,170,255,0.7)"/>
+      <circle cx="13" cy="44" r="1.5" fill="rgba(140,170,255,0.5)"/>
+      <circle cx="16" cy="25" r="2" fill="rgba(140,170,255,0.7)"/>
+      <circle cx="36" cy="36" r="3" fill="rgba(160,185,255,0.9)"/>
+      <!-- 연결선 -->
+      <line x1="36" y1="14" x2="36" y2="36" stroke="rgba(110,140,255,0.25)" stroke-width="0.7"/>
+      <line x1="55" y1="25" x2="36" y2="36" stroke="rgba(110,140,255,0.2)" stroke-width="0.7"/>
+      <line x1="58" y1="44" x2="36" y2="36" stroke="rgba(110,140,255,0.25)" stroke-width="0.7"/>
+      <line x1="44" y1="60" x2="36" y2="36" stroke="rgba(110,140,255,0.2)" stroke-width="0.7"/>
+      <line x1="24" y1="60" x2="36" y2="36" stroke="rgba(110,140,255,0.25)" stroke-width="0.7"/>
+      <line x1="13" y1="44" x2="36" y2="36" stroke="rgba(110,140,255,0.2)" stroke-width="0.7"/>
+      <line x1="16" y1="25" x2="36" y2="36" stroke="rgba(110,140,255,0.25)" stroke-width="0.7"/>
+      <!-- 외곽 연결 -->
+      <line x1="36" y1="14" x2="55" y2="25" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+      <line x1="55" y1="25" x2="58" y2="44" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+      <line x1="58" y1="44" x2="44" y2="60" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+      <line x1="44" y1="60" x2="24" y2="60" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+      <line x1="24" y1="60" x2="13" y2="44" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+      <line x1="13" y1="44" x2="16" y2="25" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+      <line x1="16" y1="25" x2="36" y2="14" stroke="rgba(110,140,255,0.1)" stroke-width="0.5"/>
+    </svg>
+
+    <p class="eyebrow">Interactive Installation</p>
+    <h1 class="title">Second Brain</h1>
+    <div class="divider"></div>
+
+    <p class="description">
+      우리는 각자의 공간에서 생각한다.<br>
+      하지만 그 생각은 혼자만의 것이 아니다.<br><br>
+      이 작품은 <em>인체 외부에 존재하는 하나의 뇌</em>다.<br>
+      당신이 키워드를 입력하는 순간, 그것은 네트워크 위의<br>
+      노드가 되어 누군가의 생각과 조용히 연결된다.<br><br>
+      우리는 서로 멀리 떨어져 있지만, <em>이미 연결되어 있다.</em>
+    </p>
+
+    <div class="cta">
+      <p class="cta-label">Click anywhere to enter</p>
+      <div class="cta-dot"></div>
+    </div>
+  </div>
+</div>
 
 <!-- Firebase -->
 <script type="module">
@@ -31,20 +195,19 @@
 
   onChildAdded(ref(db, 'keywords'), (snapshot) => {
     const data = snapshot.val();
-    if (window.addLiveNode) {
-      window.addLiveNode(data.text, data.category);
-    }
+    if (window.addLiveNode) window.addLiveNode(data.text, data.category);
   });
 </script>
 
-<!-- p5.js -->
+<!-- p5.js + p5.sound -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/addons/p5.sound.min.js"></script>
 
 <script>
 let nodes = [];
 let links = [];
+let audioReady = false;
 
-// 카테고리별 색상
 const categoryColors = {
   '일상': [120, 245, 185],
   '공부': [110, 165, 255],
@@ -53,43 +216,148 @@ const categoryColors = {
 };
 const defaultColor = [180, 135, 255];
 
+const categorySounds = {
+  '일상': { type: 'sine',     hz: 440,  adsr: [0.01, 0.25, 0.0, 0.35], linkHz: 330 },
+  '공부': { type: 'triangle', hz: 660,  adsr: [0.01, 0.18, 0.0, 0.28], linkHz: 495 },
+  '일':   { type: 'sawtooth', hz: 330,  adsr: [0.01, 0.15, 0.0, 0.22], linkHz: 247 },
+  '감정': { type: 'sine',     hz: 528,  adsr: [0.02, 0.30, 0.0, 0.45], linkHz: 396 },
+};
+const defaultSound = { type: 'sine', hz: 480, adsr: [0.01, 0.22, 0.0, 0.32], linkHz: 360 };
+
+let reverb, delay;
+
+const PENTA = [65.4, 73.4, 98.0, 130.8, 146.8, 196.0, 261.6, 293.7, 392.0];
+let droneA, droneB, droneFilter;
+let genOscs = [];
+let lfo;
+let bgVolTarget = 0.0;
+let bgVolCurrent = 0.0;
+
+// 오버레이 클릭 → 오디오 활성화 + 페이드아웃
+const overlay = document.getElementById('startOverlay');
+overlay.addEventListener('click', () => {
+  userStartAudio().then(() => {
+    audioReady = true;
+    overlay.classList.add('hidden');
+    initBackground();
+  });
+});
+
+// ── 배경음 초기화 ──────────────────────────────────────────
+function initBackground() {
+  droneFilter = new p5.LowPass();
+  droneFilter.freq(320);
+  droneFilter.res(8);
+
+  droneA = new p5.Oscillator('sawtooth');
+  droneA.disconnect(); droneA.connect(droneFilter);
+  droneA.freq(55.0); droneA.amp(0); droneA.start();
+
+  droneB = new p5.Oscillator('sawtooth');
+  droneB.disconnect(); droneB.connect(droneFilter);
+  droneB.freq(55.7); droneB.amp(0); droneB.start();
+
+  lfo = new p5.Oscillator('sine');
+  lfo.disconnect(); lfo.freq(0.04); lfo.amp(180); lfo.start();
+  lfo.connect(droneFilter.freq);
+
+  droneFilter.connect(reverb);
+
+  for (let i = 0; i < 3; i++) {
+    const osc = new p5.Oscillator('sine');
+    const env = new p5.Envelope();
+    env.setADSR(1.2, 0.8, 0.3, 2.5);
+    env.setRange(0, 0);
+    osc.disconnect(); osc.connect(droneFilter);
+    osc.freq(PENTA[i * 2]); osc.start();
+    genOscs.push({ osc, env, nextTime: millis() + random(2000, 5000) });
+  }
+}
+
+function tickGenerative() {
+  if (!audioReady) return;
+  const now = millis();
+  for (let g of genOscs) {
+    if (now >= g.nextTime) {
+      g.osc.freq(random(PENTA), 0.6);
+      g.env.setRange(bgVolCurrent * 0.28, 0);
+      g.env.play(g.osc);
+      g.nextTime = now + random(3500, 9000);
+    }
+  }
+}
+
+function updateBgVolume() {
+  if (!audioReady) return;
+  bgVolTarget = min(0.5, nodes.length * 0.018);
+  bgVolCurrent = lerp(bgVolCurrent, bgVolTarget, 0.005);
+  const dv = bgVolCurrent * 0.55;
+  droneA.amp(dv, 0.5);
+  droneB.amp(dv * 0.75, 0.5);
+}
+
+// ── 노드/링크 사운드 ────────────────────────────────────────
+function playNodeSound(category) {
+  if (!audioReady) return;
+  const cfg = categorySounds[category] || defaultSound;
+  const osc = new p5.Oscillator(cfg.type);
+  const env = new p5.Envelope();
+  env.setADSR(...cfg.adsr); env.setRange(0.45, 0);
+  osc.disconnect(); osc.connect(reverb);
+  osc.freq(cfg.hz); osc.start(); env.play(osc);
+  setTimeout(() => osc.stop(), (cfg.adsr[0]+cfg.adsr[1]+cfg.adsr[3])*1000+100);
+}
+
+function playLinkSound(category) {
+  if (!audioReady) return;
+  const cfg = categorySounds[category] || defaultSound;
+  const osc = new p5.Oscillator('sine');
+  const env = new p5.Envelope();
+  env.setADSR(0.005, 0.12, 0.0, 0.18); env.setRange(0.2, 0);
+  osc.disconnect(); osc.connect(delay);
+  osc.freq(cfg.linkHz); osc.start(); env.play(osc);
+  setTimeout(() => osc.stop(), 500);
+}
+
+// ── p5 setup / draw ─────────────────────────────────────────
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
-  textFont("sans-serif");
+  textFont("'Noto Sans KR', sans-serif");
+
+  reverb = new p5.Reverb();
+  reverb.set(3.5, 2);
+  delay = new p5.Delay();
+  delay.process(reverb, 0.18, 0.35, 2800);
 
   window.addLiveNode = function(word, category) {
     let c = categoryColors[category] || defaultColor;
-
     let x, y;
     if (nodes.length === 0) {
       x = random(width * 0.2, width * 0.8);
       y = random(height * 0.2, height * 0.8);
     } else {
-      let parent = random() < 0.6
-        ? nodes[nodes.length - 1]
-        : random(nodes);
+      let parent = random() < 0.6 ? nodes[nodes.length-1] : random(nodes);
       let angle = random(TWO_PI);
       let distance = random(150, 360);
-      x = constrain(parent.baseX + cos(angle) * distance, 120, width - 120);
-      y = constrain(parent.baseY + sin(angle) * distance, 100, height - 100);
+      x = constrain(parent.baseX + cos(angle)*distance, 120, width-120);
+      y = constrain(parent.baseY + sin(angle)*distance, 100, height-100);
     }
-
-    let newNode = new Node(x, y, word, c);
+    let newNode = new Node(x, y, word, c, category);
     nodes.push(newNode);
+    playNodeSound(category);
 
     if (nodes.length > 1) {
-      let parent = random() < 0.6
-        ? nodes[nodes.length - 2]
-        : random(nodes.slice(0, -1));
-      links.push(new Link(parent, newNode, true));
+      let parent = random() < 0.6 ? nodes[nodes.length-2] : random(nodes.slice(0,-1));
+      links.push(new Link(parent, newNode, true, category));
+      setTimeout(() => playLinkSound(category), 80);
     }
-
     for (let other of nodes) {
       if (other !== newNode) {
         let d = dist(newNode.baseX, newNode.baseY, other.baseX, other.baseY);
         if (d < 400 && random() < 0.2) {
-          links.push(new Link(newNode, other, false));
+          links.push(new Link(newNode, other, false, category));
+          setTimeout(() => playLinkSound(category), 160);
         }
       }
     }
@@ -98,84 +366,94 @@ function setup() {
 
 function draw() {
   background(3, 5, 10, 32);
+  tickGenerative();
+  updateBgVolume();
 
-  for (let link of links) {
-    link.update();
-    link.display();
-  }
-
-  for (let node of nodes) {
-    node.update();
-    node.display();
-  }
+  for (let link of links) { link.update(); link.display(); }
+  for (let node of nodes) { node.update(); node.display(); }
 
   if (nodes.length === 0) {
-    fill(255, 255, 255, 40);
+    // 대기 메시지
+    fill(255, 255, 255, 22);
     noStroke();
-    textSize(18);
+    textSize(12);
+    textStyle(NORMAL);
     textAlign(CENTER, CENTER);
-    text('QR 코드를 스캔하고 키워드를 입력해주세요', width / 2, height / 2);
+    text('QR 코드를 스캔하고 당신의 생각을 입력해주세요', width/2, height - 40);
   }
 }
 
+// ── Link ────────────────────────────────────────────────────
 class Link {
-  constructor(a, b, isPrimary) {
-    this.a = a;
-    this.b = b;
+  constructor(a, b, isPrimary, category) {
+    this.a = a; this.b = b;
     this.alpha = 0;
     this.isPrimary = isPrimary;
   }
-  update() { this.alpha = min(this.alpha + 3, 130); }
+  update() { this.alpha = min(this.alpha + 2, isPrimaryAlpha(this.isPrimary)); }
   display() {
     if (this.isPrimary) {
-      stroke(210, 230, 255, this.alpha);
-      strokeWeight(1.2);
+      stroke(160, 190, 255, this.alpha);
+      strokeWeight(0.8);
     } else {
-      stroke(255, 255, 255, this.alpha * 0.25);
-      strokeWeight(0.6);
+      stroke(255, 255, 255, this.alpha * 0.2);
+      strokeWeight(0.4);
     }
     line(this.a.x, this.a.y, this.b.x, this.b.y);
   }
 }
+function isPrimaryAlpha(p) { return p ? 90 : 40; }
 
+// ── Node ────────────────────────────────────────────────────
 class Node {
-  constructor(x, y, label, c) {
-    this.baseX = x;
-    this.baseY = y;
-    this.x = x;
-    this.y = y;
+  constructor(x, y, label, c, category) {
+    this.baseX = x; this.baseY = y;
+    this.x = x; this.y = y;
     this.label = label;
     this.c = c;
-    this.size = random(8, 16);
+    this.size = random(4, 9);        // 더 작고 정밀하게
     this.alpha = 0;
     this.offset = random(1000);
-    this.pulseSpeed = random(0.015, 0.035);
+    this.pulseSpeed = random(0.012, 0.028);
   }
   update() {
-    this.alpha = min(this.alpha + 5, 255);
-    this.x = this.baseX + sin(frameCount * 0.008 + this.offset) * 9;
-    this.y = this.baseY + cos(frameCount * 0.01 + this.offset) * 9;
+    this.alpha = min(this.alpha + 4, 255);
+    this.x = this.baseX + sin(frameCount * 0.007 + this.offset) * 6;
+    this.y = this.baseY + cos(frameCount * 0.009 + this.offset) * 6;
   }
   display() {
     let c = this.c;
+    let a = this.alpha;
     let pulse = sin(frameCount * this.pulseSpeed + this.offset) * 0.5 + 0.5;
+    let s = this.size;
+
     noStroke();
-    fill(c[0], c[1], c[2], this.alpha * 0.08);
-    ellipse(this.x, this.y, this.size * 5.5 + pulse * 6);
-    fill(c[0], c[1], c[2], this.alpha * 0.18);
-    ellipse(this.x, this.y, this.size * 3.2 + pulse * 4);
-    fill(c[0], c[1], c[2], this.alpha);
-    ellipse(this.x, this.y, this.size);
-    fill(245, 248, 255, this.alpha * 0.92);
-    textSize(15);
+
+    // 외곽 glow — 3단계
+    fill(c[0], c[1], c[2], a * 0.04);
+    ellipse(this.x, this.y, s * 7 + pulse * 5);
+
+    fill(c[0], c[1], c[2], a * 0.10);
+    ellipse(this.x, this.y, s * 3.8 + pulse * 3);
+
+    // 코어 — 작고 선명하게
+    fill(c[0], c[1], c[2], a * 0.85);
+    ellipse(this.x, this.y, s);
+
+    // 하이라이트 도트
+    fill(240, 248, 255, a * 0.6);
+    ellipse(this.x - s*0.2, this.y - s*0.2, s * 0.28);
+
+    // 레이블 — 얇고 세련되게
+    fill(200, 215, 255, a * 0.75);
+    textSize(12);
+    textStyle(NORMAL);
     textAlign(CENTER, CENTER);
-    text(this.label, this.x, this.y + this.size + 16);
+    text(this.label, this.x, this.y + s + 14);
   }
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
+function windowResized() { resizeCanvas(windowWidth, windowHeight); }
 </script>
 </body>
 </html>
