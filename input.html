@@ -3,225 +3,321 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>키워드 입력</title>
+  <title>Second Brain — 입력</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap');
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --c-일상: 120, 245, 185;
+      --c-공부: 110, 165, 255;
+      --c-일:   255, 185, 90;
+      --c-감정: 255, 105, 150;
+      --accent: 110, 140, 255;
+    }
 
     body {
       min-height: 100dvh;
-      background: #0a0a0f;
+      background: #03050a;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: 'Noto Sans KR', sans-serif;
-      padding: 32px 24px;
+      padding: 40px 28px;
       color: #fff;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .title {
-      font-size: 11px;
-      letter-spacing: 0.25em;
-      color: rgba(255,255,255,0.3);
+    /* ── 상단 eyebrow ── */
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      color: rgba(var(--accent), 0.4);
       text-transform: uppercase;
-      margin-bottom: 40px;
+      margin-bottom: 44px;
       text-align: center;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.1s forwards;
     }
 
+    /* ── 프롬프트 ── */
     .prompt {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 300;
       text-align: center;
-      line-height: 1.6;
-      margin-bottom: 32px;
-      color: rgba(255,255,255,0.85);
+      line-height: 1.65;
+      color: rgba(220, 228, 255, 0.82);
+      letter-spacing: 0.03em;
+      margin-bottom: 44px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.25s forwards;
     }
 
-    /* 카테고리 선택 */
-    .category-label {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      color: rgba(255,255,255,0.25);
+    /* ── 카테고리 ── */
+    .section-label {
+      font-size: 9px;
+      letter-spacing: 0.26em;
+      color: rgba(var(--accent), 0.35);
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       width: 100%;
-      max-width: 340px;
+      max-width: 320px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
     }
 
     .categories {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
-      max-width: 340px;
-      margin-bottom: 20px;
+      max-width: 320px;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.5s forwards;
     }
 
     .cat-btn {
-      padding: 14px 10px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.5);
-      font-size: 15px;
+      padding: 16px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 14px;
       font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.22s ease;
       -webkit-tap-highlight-color: transparent;
-      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      letter-spacing: 0.05em;
+      position: relative;
+      overflow: hidden;
     }
 
-    .cat-btn .dot {
-      width: 10px;
-      height: 10px;
+    /* 선택 전 dot — 작고 어둡게 */
+    .cat-btn .node {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      display: block;
+      background: rgba(255, 255, 255, 0.15);
+      transition: all 0.22s ease;
+      position: relative;
     }
 
+    /* 선택 시 */
     .cat-btn.selected {
-      border-color: var(--cat-color);
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      box-shadow: 0 0 16px -4px var(--cat-color);
+      border-color: rgba(var(--cat-rgb), 0.45);
+      background: rgba(var(--cat-rgb), 0.07);
+      color: rgba(255, 255, 255, 0.88);
+    }
+    .cat-btn.selected .node {
+      background: rgb(var(--cat-rgb));
+      box-shadow: 0 0 10px 2px rgba(var(--cat-rgb), 0.4);
     }
 
-    /* 키워드 입력 */
+    /* 각 카테고리 색 */
+    .cat-btn[data-cat="일상"] { --cat-rgb: var(--c-일상); }
+    .cat-btn[data-cat="공부"] { --cat-rgb: var(--c-공부); }
+    .cat-btn[data-cat="일"]   { --cat-rgb: var(--c-일); }
+    .cat-btn[data-cat="감정"] { --cat-rgb: var(--c-감정); }
+
+    /* ── 입력창 ── */
     .input-wrap {
       width: 100%;
-      max-width: 340px;
+      max-width: 320px;
+      margin-bottom: 10px;
+      position: relative;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.65s forwards;
+    }
+
+    /* 하단 밑줄형 인풋 — 박스 대신 라인 */
+    .input-wrap input[type="text"] {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 0;
+      padding: 14px 0 14px 0;
+      font-size: 20px;
+      font-weight: 300;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: rgba(220, 228, 255, 0.9);
+      outline: none;
+      letter-spacing: 0.06em;
+      text-align: center;
+      transition: border-color 0.3s;
+      caret-color: rgba(var(--accent), 0.8);
+    }
+    .input-wrap input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.15);
+      font-weight: 300;
+    }
+    .input-wrap input[type="text"]:focus {
+      border-bottom-color: rgba(var(--accent), 0.5);
+    }
+    .input-wrap input[type="text"].has-category:focus {
+      border-bottom-color: rgba(var(--active-cat, var(--accent)), 0.6);
+    }
+
+    /* 글자수 카운터 */
+    .char-count {
+      position: absolute;
+      right: 0;
+      bottom: -18px;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.18);
+      transition: color 0.2s;
+    }
+    .char-count.near { color: rgba(255, 185, 90, 0.5); }
+
+    /* ── 전송 버튼 ── */
+    .send-wrap {
+      width: 100%;
+      max-width: 320px;
+      margin-top: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.75s forwards;
+    }
+
+    #sendBtn {
+      width: 100%;
+      padding: 17px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 13px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      cursor: not-allowed;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      text-transform: uppercase;
+    }
+
+    #sendBtn.ready {
+      background: rgba(var(--btn-rgb, var(--accent)), 0.14);
+      border-color: rgba(var(--btn-rgb, var(--accent)), 0.35);
+      color: rgba(255, 255, 255, 0.82);
+      cursor: pointer;
+    }
+    #sendBtn.ready:active { transform: scale(0.98); opacity: 0.85; }
+    #sendBtn:disabled { cursor: not-allowed; }
+
+    /* ── 피드백 ── */
+    .feedback {
+      margin-top: 20px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: rgba(var(--accent), 0.55);
+      text-align: center;
+      min-height: 18px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .feedback.visible { opacity: 1; }
+
+    /* ── 보낸 태그 목록 ── */
+    .sent-wrap {
+      margin-top: 44px;
+      width: 100%;
+      max-width: 320px;
+      display: none;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+    .sent-wrap.show { display: block; }
+
+    .sent-label {
+      font-size: 9px;
+      letter-spacing: 0.26em;
+      color: rgba(255, 255, 255, 0.18);
+      text-transform: uppercase;
       margin-bottom: 12px;
     }
 
-    input[type="text"] {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 18px 20px;
-      font-size: 18px;
-      font-family: 'Noto Sans KR', sans-serif;
-      color: #fff;
-      outline: none;
-      transition: border-color 0.3s;
-      text-align: center;
-    }
-
-    input[type="text"]::placeholder { color: rgba(255,255,255,0.2); }
-    input[type="text"]:focus { border-color: rgba(255,255,255,0.35); }
-
-    button#sendBtn {
-      width: 100%;
-      max-width: 340px;
-      padding: 18px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px;
-      color: rgba(255,255,255,0.5);
-      font-size: 16px;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    button#sendBtn.ready {
-      background: var(--selected-color, rgba(150,100,255,0.8));
-      border-color: transparent;
-      color: #fff;
-      box-shadow: 0 4px 20px -4px var(--selected-color, rgba(150,100,255,0.5));
-    }
-
-    button#sendBtn:active { transform: scale(0.98); }
-    button#sendBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-    .feedback {
-      margin-top: 20px;
-      font-size: 13px;
-      color: rgba(255,255,255,0.5);
-      text-align: center;
-      min-height: 20px;
-      letter-spacing: 0.05em;
-    }
-
-    .sent-list {
-      margin-top: 36px;
-      width: 100%;
-      max-width: 340px;
-      display: none;
-    }
-
-    .sent-title {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      color: rgba(255,255,255,0.2);
-      margin-bottom: 10px;
-      text-transform: uppercase;
+    /* 수평 구분선 */
+    .divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(var(--accent), 0.18);
+      margin: 0 auto 44px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.35s forwards;
     }
 
     .sent-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 7px;
     }
 
     .tag {
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 13px;
+      border-radius: 3px;
+      padding: 4px 12px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
       border: 1px solid;
-      animation: tagIn 0.4s ease;
+      animation: tagIn 0.35s ease;
     }
 
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     @keyframes tagIn {
-      from { opacity: 0; transform: scale(0.8); }
+      from { opacity: 0; transform: scale(0.85); }
       to   { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
 <body>
 
-  <div class="title">Beyond the Center Node</div>
-  <div class="prompt">지금 떠오르는<br>단어를 입력하세요</div>
+  <p class="eyebrow">Second Brain</p>
 
-  <div class="category-label">카테고리 선택</div>
+  <p class="prompt">지금 이 순간<br>떠오르는 단어는?</p>
+
+  <div class="divider"></div>
+
+  <p class="section-label">Category</p>
   <div class="categories">
-    <button class="cat-btn" data-cat="일상" style="--cat-color: rgb(120,245,185)">
-      <span class="dot" style="background: rgb(120,245,185)"></span>
-      일상
+    <button class="cat-btn" data-cat="일상">
+      <span class="node"></span>일상
     </button>
-    <button class="cat-btn" data-cat="공부" style="--cat-color: rgb(110,165,255)">
-      <span class="dot" style="background: rgb(110,165,255)"></span>
-      공부
+    <button class="cat-btn" data-cat="공부">
+      <span class="node"></span>공부
     </button>
-    <button class="cat-btn" data-cat="일" style="--cat-color: rgb(255,185,90)">
-      <span class="dot" style="background: rgb(255,185,90)"></span>
-      일
+    <button class="cat-btn" data-cat="일">
+      <span class="node"></span>일
     </button>
-    <button class="cat-btn" data-cat="감정" style="--cat-color: rgb(255,105,150)">
-      <span class="dot" style="background: rgb(255,105,150)"></span>
-      감정
+    <button class="cat-btn" data-cat="감정">
+      <span class="node"></span>감정
     </button>
   </div>
 
   <div class="input-wrap">
-    <input type="text" id="keyword" placeholder="키워드" maxlength="20"
+    <input type="text" id="keyword" placeholder="—" maxlength="20"
            autocomplete="off" autocorrect="off" spellcheck="false">
+    <span class="char-count" id="charCount">0 / 20</span>
   </div>
 
-  <button id="sendBtn" onclick="sendKeyword()" disabled>전시에 띄우기</button>
+  <div class="send-wrap">
+    <button id="sendBtn" disabled>Enter the Network</button>
+  </div>
 
   <div class="feedback" id="feedback"></div>
 
-  <div class="sent-list" id="sentList">
-    <div class="sent-title">내가 보낸 키워드</div>
+  <div class="sent-wrap" id="sentWrap">
+    <div class="sent-label">My nodes</div>
     <div class="sent-tags" id="tags"></div>
   </div>
 
@@ -242,54 +338,57 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const catColors = {
-    '일상': 'rgb(120,245,185)',
-    '공부': 'rgb(110,165,255)',
-    '일':   'rgb(255,185,90)',
-    '감정': 'rgb(255,105,150)',
+  const catRGB = {
+    '일상': '120, 245, 185',
+    '공부': '110, 165, 255',
+    '일':   '255, 185, 90',
+    '감정': '255, 105, 150',
   };
 
   let selectedCategory = null;
+  const input    = document.getElementById('keyword');
+  const sendBtn  = document.getElementById('sendBtn');
+  const feedback = document.getElementById('feedback');
+  const charCount = document.getElementById('charCount');
 
-  // 카테고리 버튼
+  // 카테고리 선택
   document.querySelectorAll('.cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedCategory = btn.dataset.cat;
-      updateSendBtn();
+      updateBtn();
     });
   });
 
-  // 입력창 변화 감지
-  document.getElementById('keyword').addEventListener('input', updateSendBtn);
-  document.getElementById('keyword').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendKeyword();
+  // 입력 감지
+  input.addEventListener('input', () => {
+    const len = input.value.length;
+    charCount.textContent = `${len} / 20`;
+    charCount.classList.toggle('near', len >= 16);
+    updateBtn();
   });
 
-  function updateSendBtn() {
-    const word = document.getElementById('keyword').value.trim();
-    const btn = document.getElementById('sendBtn');
-    if (word && selectedCategory) {
-      btn.disabled = false;
-      btn.classList.add('ready');
-      btn.style.setProperty('--selected-color', catColors[selectedCategory]);
-    } else {
-      btn.disabled = true;
-      btn.classList.remove('ready');
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !sendBtn.disabled) submitKeyword();
+  });
+
+  function updateBtn() {
+    const ready = input.value.trim().length > 0 && selectedCategory;
+    sendBtn.disabled = !ready;
+    sendBtn.classList.toggle('ready', !!ready);
+    if (ready) {
+      sendBtn.style.setProperty('--btn-rgb', catRGB[selectedCategory]);
     }
   }
 
-  window.sendKeyword = async function() {
-    const input = document.getElementById('keyword');
+  async function submitKeyword() {
     const word = input.value.trim();
     if (!word || !selectedCategory) return;
 
-    const btn = document.getElementById('sendBtn');
-    const feedback = document.getElementById('feedback');
-
-    btn.disabled = true;
-    feedback.textContent = '전송 중...';
+    sendBtn.disabled = true;
+    sendBtn.classList.remove('ready');
+    showFeedback('Transmitting...');
 
     try {
       await push(ref(db, 'keywords'), {
@@ -298,29 +397,45 @@
         time: Date.now()
       });
 
-      feedback.textContent = '✓ 전시 화면에 나타났어요!';
+      showFeedback('Node created');
+      addTag(word, selectedCategory);
       input.value = '';
-      updateSendBtn();
+      charCount.textContent = '0 / 20';
+      updateBtn();
 
-      // 보낸 태그
-      const sentList = document.getElementById('sentList');
-      const tags = document.getElementById('tags');
-      sentList.style.display = 'block';
-      const tag = document.createElement('div');
-      tag.className = 'tag';
-      tag.textContent = word;
-      const color = catColors[selectedCategory];
-      tag.style.color = color;
-      tag.style.borderColor = color.replace('rgb', 'rgba').replace(')', ', 0.4)');
-      tag.style.background = color.replace('rgb', 'rgba').replace(')', ', 0.08)');
-      tags.appendChild(tag);
-
-      setTimeout(() => { feedback.textContent = ''; }, 3000);
-    } catch (e) {
-      feedback.textContent = '오류가 발생했어요. 다시 시도해주세요.';
-      btn.disabled = false;
+      setTimeout(() => hideFeedback(), 2800);
+    } catch {
+      showFeedback('Error — retry');
+      sendBtn.disabled = false;
+      updateBtn();
     }
-  };
+  }
+
+  window.submitKeyword = submitKeyword;
+  sendBtn.addEventListener('click', submitKeyword);
+
+  function showFeedback(msg) {
+    feedback.textContent = msg;
+    feedback.classList.add('visible');
+  }
+  function hideFeedback() {
+    feedback.classList.remove('visible');
+  }
+
+  function addTag(word, cat) {
+    const wrap = document.getElementById('sentWrap');
+    const tags = document.getElementById('tags');
+    wrap.classList.add('show');
+
+    const rgb = catRGB[cat];
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.textContent = word;
+    tag.style.color = `rgba(${rgb}, 0.85)`;
+    tag.style.borderColor = `rgba(${rgb}, 0.25)`;
+    tag.style.background = `rgba(${rgb}, 0.06)`;
+    tags.appendChild(tag);
+  }
 </script>
 </body>
 </html>
